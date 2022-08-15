@@ -1,0 +1,22 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{C47750D5-48D4-5BBA-E985-2E9CA81E58EF}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "MazeGameV3",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		}
+	]
+}
