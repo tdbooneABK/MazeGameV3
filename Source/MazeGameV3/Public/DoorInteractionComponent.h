@@ -25,6 +25,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	FRotator DesiredRotation = FRotator::ZeroRotator;
 
+	FRotator OriginalRotation = FRotator::ZeroRotator;
 	FRotator StartRotation = FRotator::ZeroRotator;
 	FRotator FinalRotation = FRotator::ZeroRotator;
 
@@ -33,11 +34,25 @@ protected:
 
 	float CurrentRotationTime = 0.0f;
 
+	float TimeAloneToClose = 1.5f;
+	float TimeSpentAlone = 0.0f;
+
 	UPROPERTY(EditAnywhere)
 	ATriggerBase* DoorOpenTrigger;
 
 	UPROPERTY(EditAnywhere)
+	ATriggerBase* DoorOpenOutwardTrigger;
+
+	UPROPERTY(EditAnywhere)
 	FRuntimeFloatCurve DoorOperCurve;
+
+	UPROPERTY(EditAnywhere)
+	bool TwoWayRotation = false;
+
+	UPROPERTY(EditAnywhere)
+	bool CloseWhenAlone = false;
+
+	bool IsOpen = false;
 
 public:	
 	// Called every frame
