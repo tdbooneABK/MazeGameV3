@@ -2,6 +2,7 @@
 
 
 #include "SlidingDoorComponent.h"
+#include "Engine/TriggerBase.h"
 
 // Sets default values for this component's properties
 USlidingDoorComponent::USlidingDoorComponent()
@@ -18,6 +19,7 @@ USlidingDoorComponent::USlidingDoorComponent()
 void USlidingDoorComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	OriginalPosition = GetOwner()->GetActorLocation();
 }
 
 
@@ -25,19 +27,52 @@ void USlidingDoorComponent::BeginPlay()
 void USlidingDoorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	bool PlayerOnTrigger = false;
 
-	if (Opening) {
+	if (DoorOpenTrigger && GetWorld() && GetWorld()->GetFirstLocalPlayerFromController()) {
+		APawn* PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+		if (PlayerPawn && DoorOpenTrigger->IsOverlappingActor(PlayerPawn)) {
+			Open();
+			PlayerOnTrigger = true;
+		}
+	}
+
+	if (Opening || Closing) {
 		RemainingMoveTime -= DeltaTime;
 		const float TimeRatio = FMath::Clamp(RemainingMoveTime / TimeToMove, 0.0f, 1.0f);
 		const FVector CurrentPosition = FMath::Lerp(FinalPosition, StartPosition, TimeRatio);
 		GetOwner()->SetActorLocation(CurrentPosition);
 	}
+
+	if (CloseAfterTime > 0.0f && !PlayerOnTrigger && TimeUntilClose > 0.0f) {
+		TimeUntilClose -= DeltaTime;
+		if (TimeUntilClose <= 0.0f) {
+			Close();
+		}
+	}
+	else {
+		TimeUntilClose = CloseAfterTime;
+	}
 }
 
 void USlidingDoorComponent::Open()
 {
-	Opening = true;
-	RemainingMoveTime = TimeToMove;
-	StartPosition = GetOwner()->GetActorLocation();
-	FinalPosition = GetOwner()->GetActorLocation() + OpenTranslation;
+	if (!Opening) {
+		Opening = true;
+		Closing = false;
+		RemainingMoveTime = TimeToMove;
+		StartPosition = GetOwner()->GetActorLocation();
+		FinalPosition = GetOwner()->GetActorLocation() + OpenTranslation;
+	}
+}
+
+void USlidingDoorComponent::Close()
+{
+	if (!Closing) {
+		Closing = true;
+		Opening = false;
+		RemainingMoveTime = TimeToMove;
+		StartPosition = GetOwner()->GetActorLocation();
+		FinalPosition = OriginalPosition;
+	}
 }
